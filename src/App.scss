@@ -1,0 +1,19 @@
+body {
+  font-size: 2rem;
+}
+
+.game-layout {
+  margin: 2rem;
+}
+
+.game-grid {
+  tr {
+    border-collapse: collapse;
+  }
+
+  td {
+    width: 4rem;
+    height: 4rem;
+    border: 1px solid black;
+  }
+}

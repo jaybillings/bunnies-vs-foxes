@@ -4,6 +4,7 @@ import GameLayout from "./layouts/GameLayout";
 import './App.scss';
 
 function App() {
+
   return <GameLayout />;
 }
 

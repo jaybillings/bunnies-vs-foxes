@@ -4,22 +4,110 @@ import { randomInt } from "../scripts/utilities";
 export default class MapGrid extends React.Component {
   /**
    * Representation of the game map's grid.
-   * @param {{height: number, width: number, agent: *}} props
    */
   constructor(props) {
     super(props);
 
-    this.state = {mapData: [], agentCoords: [0, 0]};
+    this.state = {map: [], rabbitCoords: [], foxCoords: [], burrowCoords: []};
 
     this.handleKeyDown = this.handleKeyDown.bind(this);
   }
 
   componentDidMount() {
     // Add listeners to keydown event
-    console.log('hi');
     window.addEventListener("keydown", this.handleKeyDown, false);
 
-    this.populateMap();
+    this.createAndPopulateMap();
+  }
+
+  createAndPopulateMap() {
+    let map = this.createNewMap();
+    this.placeBarriers(map);
+    this.placeBoosts(map);
+
+    let foxCoords = this.placeAgent(map, '$');
+    let burrowCoords = this.placeAgent(map, '@');
+    let rabbitCoords = this.placeAgent(map, '#');
+
+    this.setState({map, foxCoords, burrowCoords, rabbitCoords});
+  }
+
+  createNewMap() {
+    let initialMap = [];
+
+    for (let y = 0; y < this.props.mapHeight; y++) {
+      let innerMap = [];
+      for (let x = 0; x < this.props.mapWidth; x++) {
+        innerMap[x] = null;
+      }
+      initialMap[y] = innerMap;
+    }
+
+    return initialMap;
+  }
+
+  placeBarriers(map) {
+    let numRocks = Math.floor((this.props.mapWidth * this.props.mapHeight) * this.props.rockRatio);
+    if (numRocks < 2) numRocks = 2;
+    console.info('numRocks ', numRocks);
+
+    while (numRocks > 0) {
+      const [randX, randY] = this.getRandomMapSquare();
+
+      if (map[randY][randX] === null) {
+        map[randY][randX] = '^';
+        numRocks--;
+      }
+    }
+  }
+
+  placeBoosts(map) {
+    let numFlowers = Math.floor((this.props.mapWidth * this.props.mapHeight) * this.props.flowerRatio);
+    if (numFlowers < 1) numFlowers = 1;
+    console.info(numFlowers);
+
+    while (numFlowers > 0) {
+      const [randX, randY] = this.getRandomMapSquare();
+
+      if (map[randY][randX] === null) {
+        map[randY][randX] = '*';
+        numFlowers--;
+      }
+    }
+  }
+
+  placeAgent(map, agentChar) {
+    let randX, randY;
+
+    do {
+      [randX, randY] = this.getRandomMapSquare();
+    } while (map[randY][randX]);
+
+    map[randY][randX] = agentChar;
+    console.info(`initial location of ${agentChar}: [${randX},${randY}]`);
+
+    return [randX, randY]
+  }
+
+  moveRabbit(offset) {
+    const map = this.state.map;
+    const [oldX, oldY] = this.state.rabbitCoords;
+    const [offsetX, offsetY] = offset;
+    let newX = oldX + offsetX, newY = oldY + offsetY;
+
+    if (map[newY] && [null, '*', '@'].includes(map[newY][newX])) {
+      console.log('move!');
+      map[oldY][oldX] = null;
+      map[newY][newX] = '#';
+
+      this.setState({map, rabbitCoords: [newX, newY]});
+    } else {
+      console.log('dont move');
+    }
+  }
+
+  getRandomMapSquare() {
+    return [randomInt(0, this.props.mapWidth - 1), randomInt(0, this.props.mapWidth - 1)];
   }
 
   handleKeyDown(e) {
@@ -27,63 +115,31 @@ export default class MapGrid extends React.Component {
 
     switch (e.key) {
       case 'ArrowLeft':
-        if (this.state.agentCoords[0] > 0) this.moveAgent([-1, 0]);
+        this.moveRabbit([-1, 0]);
         break;
       case 'ArrowRight':
-        if (this.state.agentCoords[0] < this.props.width - 1) this.moveAgent([1, 0]);
+        this.moveRabbit([1, 0]);
         break;
       case 'ArrowUp':
-        if (this.state.agentCoords[1] > 0) this.moveAgent([0, -1]);
+        this.moveRabbit([0, -1]);
         break;
       case 'ArrowDown':
-        if (this.state.agentCoords[1] < this.props.height - 1) this.moveAgent([0, 1]);
+        this.moveRabbit([0, 1]);
         break;
       default:
     }
   }
 
-  populateMap() {
-    let initialMap = [];
-
-    for (let y = 0; y < this.props.height; y++) {
-      let innerMap = [];
-      for (let x = 0; x < this.props.width; x++) {
-        innerMap[x] = null;
-      }
-      initialMap[y] = innerMap;
-    }
-
-    // Place agent
-    let initialX = randomInt(0, this.props.width - 1), initialY = randomInt(0, this.props.height - 1);
-    initialMap[initialY][initialX] = '@';
-    console.log('initial: ' + initialX + "," + initialY);
-
-    this.setState({mapData: initialMap, agentCoords: [initialX, initialY]}, () => {
-      console.log(this.state.mapData);
-    });
-  }
-
-  moveAgent(offset) {
-    const map = this.state.mapData;
-    const [oldX, oldY] = this.state.agentCoords;
-    const [offsetX, offsetY] = offset;
-    let newX = oldX + offsetX, newY = oldY + offsetY;
-
-    map[oldY][oldX] = null;
-    map[newY][newX] = '@';
-
-    this.setState({mapData: map, agentCoords: [newX, newY]});
-  }
-
   render() {
-    if (!this.state.mapData.length) return false;
+    if (!this.state.map.length) return false;
 
     return <table className={'game-grid'}>
       <tbody>
       {
-        this.state.mapData.map((col, i) => {
+        this.state.map.map((col, i) => {
           return <tr key={`col_${i}`}>{col.map((item, j) => {
-            return <td key={`item_${j}:${i}`}>{`${j}, ${i} ${item}`}</td>
+            return <td key={`item_${j}:${i}`}><span
+              className={'dev_note'}>{`${j}, ${i}`}</span>{item && `${item}`}</td>
           })}</tr>
         })
       }

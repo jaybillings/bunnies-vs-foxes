@@ -1,13 +1,10 @@
-body {
-  font-size: 2rem;
-}
-
 .game-layout {
   margin: 2rem;
 }
 
 .game-grid {
   margin: 0 auto;
+  font-size: 2rem;
 
   tr {
     border-collapse: collapse;
@@ -17,6 +14,19 @@ body {
     width: 4rem;
     height: 4rem;
     border: 1px solid black;
+  }
+}
+
+.game-board {
+  margin-top: 2rem;
+}
+
+.info-container {
+  margin: 1rem 0;
+
+  p {
+    display: inline-block;
+    margin: 0 1rem 0 0;
   }
 }
 

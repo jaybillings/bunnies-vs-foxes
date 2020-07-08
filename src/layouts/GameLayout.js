@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import MapGrid from "../components/MapGrid";
+import GameBoard from "../components/GameBoard";
 
 export default class GameLayout extends Component {
   render() {
@@ -15,9 +15,21 @@ export default class GameLayout extends Component {
     };
 
     return <div className={'game-layout'}>
-      <h1>the bunny game</h1>
-      <MapGrid rockRatio={config.ratios.rock} flowerRatio={config.ratios.flower}
-               mapWidth={config.mapSize.width} mapHeight={config.mapSize.height} />
+      <header>
+        <h1>the bunny game</h1>
+        <p>Get the bunny to her burrow!</p>
+        <p>Legend:</p>
+        <ul>
+          <li># --> the bunny, that's you!</li>
+          <li>$ --> the fox, will eat the bunny</li>
+          <li>@ --> the burrow, go here!</li>
+          <li>^ --> hills, uncrossable</li>
+          <li>* --> dandelions, make your next move 2 spaces</li>
+        </ul>
+      </header>
+
+      <GameBoard rockRatio={config.ratios.rock} flowerRatio={config.ratios.flower}
+                 mapWidth={config.mapSize.width} mapHeight={config.mapSize.height} />
     </div>
   }
 }

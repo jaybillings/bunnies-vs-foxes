@@ -1,7 +1,15 @@
 import React, { Component } from "react";
 import GameBoard from "../components/GameBoard";
+import { BsArrowRight } from "react-icons/bs";
 
 export default class GameLayout extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {message: 'Get the bunny to her burrow!'}
+  }
+
+
   render() {
     const config = {
       ratios: {
@@ -17,17 +25,18 @@ export default class GameLayout extends Component {
     return <div className={'game-layout'}>
       <header>
         <h1>the bunny game</h1>
-        <p>Get the bunny to her burrow!</p>
-        <p>Legend:</p>
-        <ul>
-          <li># --> the bunny, that's you!</li>
-          <li>$ --> the fox, will eat the bunny</li>
-          <li>@ --> the burrow, go here!</li>
-          <li>^ --> hills, uncrossable</li>
-          <li>* --> dandelions, make your next move 2 spaces</li>
-        </ul>
+        <h2 className={'message'}><p>{this.state.message}</p></h2>
       </header>
-
+      <div>
+        <p><strong>Legend:</strong></p>
+        <ul>
+          <li>#<BsArrowRight />the bunny, that's you!</li>
+          <li>$<BsArrowRight />the fox, will eat the bunny</li>
+          <li>@<BsArrowRight />the burrow, go here!</li>
+          <li>^<BsArrowRight />hills, uncrossable</li>
+          <li>*<BsArrowRight />dandelions, make your next move 2 spaces</li>
+        </ul>
+      </div>
       <GameBoard rockRatio={config.ratios.rock} flowerRatio={config.ratios.flower}
                  mapWidth={config.mapSize.width} mapHeight={config.mapSize.height} />
     </div>

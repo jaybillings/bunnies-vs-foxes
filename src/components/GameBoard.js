@@ -50,20 +50,20 @@ export default class GameBoard extends React.Component {
     if (this.state.map[newY] && typeof this.state.map[newY][newX] !== 'undefined') {
       switch (this.state.map[newY][newX]) {
         /*case '*':
-          // Flower -- boost!
-          this.setState(prevState => {
-            let newMap = prevState.map;
-            newMap[oldY][oldX] = null;
-            newMap[newY][newX] = '#';
+         // Flower -- boost!
+         this.setState(prevState => {
+         let newMap = prevState.map;
+         newMap[oldY][oldX] = null;
+         newMap[newY][newX] = '#';
 
-            return {
-              map: newMap,
-              bunnySpeed: 2,
-              message: 'Bunny ate a flower -- next move will be two spaces.',
-              bunnyCoords: [newX, newY]
-            }
-          });
-          break;*/
+         return {
+         map: newMap,
+         bunnySpeed: 2,
+         message: 'Bunny ate a flower -- next move will be two spaces.',
+         bunnyCoords: [newX, newY]
+         }
+         });
+         break;*/
         case '^':
           this.setState({message: "Silly bunny! You can't go through rocks!"});
           break;
@@ -74,7 +74,12 @@ export default class GameBoard extends React.Component {
             newMap[oldY][oldX] = null;
             newMap[newY][newX] = ':(';
 
-            return {map: newMap, moves: prevState.moves++, gameState: 0, message: 'Game over -- bunny got eaten by a fox. :('};
+            return {
+              map: newMap,
+              moves: prevState.moves++,
+              gameState: 0,
+              message: 'Game over -- bunny got eaten by a fox. :('
+            };
           });
           break;
         case '@':
@@ -84,11 +89,13 @@ export default class GameBoard extends React.Component {
             newMap[oldY][oldX] = null;
             newMap[newY][newX] = '(#)';
 
-            return {map: newMap,
+            return {
+              map: newMap,
               wins: prevState.wins++,
               moves: prevState.moves++,
               gameState: 0,
-              message: 'You won -- bunny made it home! :D'};
+              message: 'You won -- bunny made it home! :D'
+            };
           });
           break;
         default:
@@ -189,18 +196,22 @@ export default class GameBoard extends React.Component {
         this.startNewGame();
         break;
       default:
-        // nothing
+      // nothing
     }
   }
 
   render() {
     return <div className={'game-board'}>
-      <button type={'button'} onClick={this.startNewGame}>Start New Game</button>
-      <div className={'info-container'}>
-        <p>Moves: {this.state.moves}</p>
-        <p>Wins this session: {this.state.wins}</p>
-        <p>{this.state.message}</p>
-      </div>
+
+      <header>
+        <div className={'info-container'}>
+          <p>Moves: {this.state.moves}</p>
+          <p>Wins this session: {this.state.wins}</p>
+        </div>
+        <button type={'button'} className={!this.state.gameState && 'emphasis'} onClick={this.startNewGame}>Start New
+          Game
+        </button>
+      </header>
 
       <table className={'game-grid'}>
         <tbody>

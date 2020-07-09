@@ -27,16 +27,26 @@
 }
 
 .game-grid {
+  border-collapse: collapse;
   font-size: 2rem;
 
-  tr {
-    border-collapse: collapse;
-  }
-
   td {
+    position: relative;
     width: 4rem;
     height: 4rem;
     border: 1px solid black;
+  }
+
+  small {
+    position: absolute;
+    top: 0;
+    font-size: 12px;
+    color: #aaa;
+  }
+
+  span {
+    display: block;
+    text-align: center;
   }
 }
 
@@ -70,18 +80,17 @@ ul {
   padding: 0;
 }
 
+li {
+  margin: 0.25rem 0;
+}
+
 svg {
   vertical-align: center;
   padding: 0 0.5em;
 }
 
 // Overrides to default styles
+
 h1, h2, h3, h4, h5, h6, p, table {
   margin: 0;
-}
-
-// Dev styles
-.dev_note {
-  font-size: 0.5em;
-  color: #aaa;
 }

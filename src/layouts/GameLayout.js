@@ -6,12 +6,25 @@ export default class GameLayout extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {message: null};
-    this.setMessage = this.setMessage.bind(this);
+    this.gameBoardRef = React.createRef();
+    this.handleStartClick = this.handleStartClick.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
   }
 
-  setMessage(message) {
-    this.setState({message});
+  componentDidMount() {
+    window.addEventListener("keydown", this.handleKeyDown, false);
+  }
+
+  handleStartClick(e) {
+    e.preventDefault();
+    this.gameBoardRef.current.startNewGame();
+  }
+
+  handleKeyDown(e) {
+    console.log(`pressed ${e.key}`);
+    if (e.key === 'Enter') {
+      this.gameBoardRef.current.startNewGame();
+    }
   }
 
   render() {
@@ -25,17 +38,18 @@ export default class GameLayout extends Component {
         height: 7
       }
     };
+    const emphasizeButton = this.gameBoardRef.current && this.gameBoardRef.current.state.gameState === 0 ? 'emphasis' : '';
 
     return <div className={'game-layout'}>
       <header>
         <h1>the bunny game</h1>
         <div className={'button_container'}>
-          <button type={'button'} className={!this.state.gameState && 'emphasis'} onClick={this.startNewGame}>
+          <button type={'button'} className={emphasizeButton} onClick={this.handleStartClick}>
             Start New Game
           </button>
         </div>
       </header>
-      <GameBoard rockRatio={config.ratios.rock} flowerRatio={config.ratios.flower}
+      <GameBoard ref={this.gameBoardRef} rockRatio={config.ratios.rock} flowerRatio={config.ratios.flower}
                  mapWidth={config.mapSize.width} mapHeight={config.mapSize.height} setMessage={this.setMessage} />
       <div className={'legend'}>
         <p><strong>Legend:</strong></p>

@@ -5,27 +5,26 @@ export default class GameBoard extends React.Component {
   /**
    * Representation of the game map's grid.
    */
-  constructor(props) {
-    super(props);
+  constructor(props, ref) {
+    super(props, ref);
 
     // gameState: 1 - in progress, 0 - current game ended
     this.state = {
-      map: [], bunnyCoords: [], gameState: 1, moves: 0, wins: 0
+      map: [], bunnyCoords: [], gameState: 1, moves: 0, wins: 0, message: null
     };
 
     this.handleKeyDown = this.handleKeyDown.bind(this);
-    this.startNewGame = this.startNewGame.bind(this);
+    //this.startNewGame = this.startNewGame.bind(this);
   }
 
   componentDidMount() {
-    window.addEventListener("keydown", this.handleKeyDown, false);
     this.startNewGame();
+    window.addEventListener("keydown", this.handleKeyDown, false);
   }
 
   startNewGame() {
-    this.setState({gameState: 1, moves: 0});
+    this.setState({gameState: 1, moves: 0, message: null});
     this.initMap();
-    this.props.setMessage(null);
   }
 
   initMap() {
@@ -34,7 +33,7 @@ export default class GameBoard extends React.Component {
     //this.placeBoosts(map);
 
     this.placeAgent(map, '$');
-    this.placeAgent(map, '@');
+    this.placeAgent(map, '@'); // TODO: Burrow should be reachable
     let bunnyCoords = this.placeAgent(map, '#');
 
     this.setState({map, bunnyCoords});
@@ -66,7 +65,7 @@ export default class GameBoard extends React.Component {
          });
          break;*/
         case '^':
-          this.props.setMessage("Silly bunny! You can't go through rocks!");
+          this.setState({message: "Silly bunny! You can't go through rocks!"});
           break;
         case '$':
           // Fox -- die :(
@@ -78,10 +77,10 @@ export default class GameBoard extends React.Component {
             return {
               map: newMap,
               moves: prevState.moves++,
-              gameState: 0
+              gameState: 0,
+              message: "Game over -- bunny got eaten by a fox. :("
             };
           });
-          this.props.setMessage("Game over -- bunny got eaten by a fox. :(");
           break;
         case '@':
           // Burrow -- win! :)
@@ -94,10 +93,10 @@ export default class GameBoard extends React.Component {
               map: newMap,
               wins: prevState.wins++,
               moves: prevState.moves++,
-              gameState: 0
+              gameState: 0,
+              message: "You won -- bunny made it home! :)"
             };
           });
-          this.props.setMessage("You won -- bunny made it home! :)");
           break;
         default:
           console.info('at default');
@@ -107,11 +106,11 @@ export default class GameBoard extends React.Component {
             newMap[oldY][oldX] = null;
             newMap[newY][newX] = '#';
 
-            return {map: newMap, moves: prevState.moves++, bunnyCoords: [newX, newY]}
+            return {map: newMap, moves: prevState.moves++, bunnyCoords: [newX, newY], message: null}
           });
-          this.props.setMessage(null);
       }
     } else {
+      this.setState({message: "Don't fall off the edge of the world!"});
       console.log('dont move');
     }
   }
@@ -131,6 +130,7 @@ export default class GameBoard extends React.Component {
   }
 
   placeBarriers(map) {
+    // TODO: Barriers should not block bunny
     let numRocks = Math.floor((this.props.mapWidth * this.props.mapHeight) * this.props.rockRatio);
     if (numRocks < 2) numRocks = 2;
     console.info('numRocks ', numRocks);
@@ -173,8 +173,12 @@ export default class GameBoard extends React.Component {
     return [randX, randY]
   }
 
+  findSolutionPath() {
+    // TODO: Find at least one path to solution -- otherwise alter map
+  }
+
   handleKeyDown(e) {
-    console.log(`pressed: ${e.key}`);
+    e.preventDefault();
 
     switch (e.key) {
       case 'ArrowLeft':
@@ -188,9 +192,6 @@ export default class GameBoard extends React.Component {
         break;
       case 'ArrowDown':
         if (this.state.gameState) this.moveBunny([0, 1]);
-        break;
-      case 'Enter':
-        this.startNewGame();
         break;
       default:
       // nothing

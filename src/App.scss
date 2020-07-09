@@ -8,7 +8,7 @@ header {
 }
 
 h1 {
-  margin: 0 0 1em;
+  margin: 0 0 1rem;
 }
 
 h2 {
@@ -62,7 +62,12 @@ svg {
 
 .game-board {
   text-align: center;
-  margin: 2em 0 0;
+  margin: 2.5em 0 0;
+
+  .message {
+    width: 75vw;
+    margin: 1rem auto;
+  }
 }
 
 .legend {
@@ -70,7 +75,7 @@ svg {
 }
 
 .game-grid {
-  margin: 2.5rem auto;
+  margin: 1rem auto 2.5rem;
   border-collapse: collapse;
   font-size: 2rem;
 
@@ -96,8 +101,6 @@ svg {
 }
 
 .info-container {
-  margin: 1rem 0;
-
   p {
     display: inline-block;
     margin: 0 1rem 0 0;

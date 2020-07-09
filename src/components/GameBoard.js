@@ -204,13 +204,11 @@ export default class GameBoard extends React.Component {
   render() {
     return <div className={'game-board'}>
       <header>
+        <h2 className={'message'}><p>{this.state.message || 'Get the bunny to her burrow!'}</p></h2>
         <div className={'info-container'}>
           <p>Moves: {this.state.moves}</p>
           <p>Wins this session: {this.state.wins}</p>
         </div>
-        <button type={'button'} className={!this.state.gameState && 'emphasis'} onClick={this.startNewGame}>
-          Start New Game
-        </button>
       </header>
 
       <table className={'game-grid'}>

@@ -29,9 +29,11 @@ export default class GameLayout extends Component {
     return <div className={'game-layout'}>
       <header>
         <h1>the bunny game</h1>
-        <button type={'button'} className={!this.state.gameState && 'emphasis'} onClick={this.startNewGame}>
-          Start New Game
-        </button>
+        <div className={'button_container'}>
+          <button type={'button'} className={!this.state.gameState && 'emphasis'} onClick={this.startNewGame}>
+            Start New Game
+          </button>
+        </div>
       </header>
       <GameBoard rockRatio={config.ratios.rock} flowerRatio={config.ratios.flower}
                  mapWidth={config.mapSize.width} mapHeight={config.mapSize.height} setMessage={this.setMessage} />

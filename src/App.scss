@@ -7,6 +7,10 @@ header {
   text-align: center;
 }
 
+h1 {
+  margin: 0 0 1em;
+}
+
 h2 {
   margin-bottom: 1rem;
   font-size: 1.2em;
@@ -45,14 +49,20 @@ svg {
 
   & > header {
     display: flex;
+    flex-flow: column;
     justify-content: space-evenly;
     margin: 2em 0;
+  }
+
+  .button_container {
+    //display: grid;
+    //align-content: center;
   }
 }
 
 .game-board {
   text-align: center;
-  margin: 4em 0 0;
+  margin: 2em 0 0;
 }
 
 .legend {
@@ -66,8 +76,8 @@ svg {
 
   td {
     position: relative;
-    width: 5rem;
-    height: 5rem;
+    width: $cell-width_small;
+    height: $cell-width_small;
     border: 1px solid black;
   }
 

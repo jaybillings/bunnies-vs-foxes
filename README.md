@@ -6,6 +6,9 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Version History
 
+0.0.4
+* Improves UI layout
+
 0.0.3
 * Implements game start/end
 * Adds UI elements tracking wins/moves

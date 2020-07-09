@@ -35,28 +35,24 @@ li {
 }
 
 svg {
-  vertical-align: center;
-  padding: 0 0.5em;
+  margin: 0 0.5em;
 }
 
 // Classes
 
 .game-layout {
-  margin: 2rem;
+  margin: 2rem auto;
 
   & > header {
     display: flex;
     justify-content: space-evenly;
-    margin: 2em 0 4em;
+    margin: 2em 0;
   }
 }
 
 .game-board {
   text-align: center;
-}
-
-.game-grid {
-  margin: 3rem auto;
+  margin: 4em 0 0;
 }
 
 .legend {
@@ -64,6 +60,7 @@ svg {
 }
 
 .game-grid {
+  margin: 2.5rem auto;
   border-collapse: collapse;
   font-size: 2rem;
 
@@ -77,6 +74,7 @@ svg {
   small {
     position: absolute;
     top: 0;
+    right: 0;
     font-size: 12px;
     color: #aaa;
   }

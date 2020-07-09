@@ -10,7 +10,7 @@ export default class GameBoard extends React.Component {
 
     // gameState: 1 - in progress, 0 - current game ended
     this.state = {
-      map: [], bunnyCoords: [], gameState: 1, moves: 0, wins: 0, message: ''
+      map: [], bunnyCoords: [], gameState: 1, moves: 0, wins: 0
     };
 
     this.handleKeyDown = this.handleKeyDown.bind(this);
@@ -23,8 +23,9 @@ export default class GameBoard extends React.Component {
   }
 
   startNewGame() {
-    this.setState({gameState: 1, moves: 0, message: ''});
+    this.setState({gameState: 1, moves: 0});
     this.initMap();
+    this.props.setMessage(null);
   }
 
   initMap() {
@@ -65,7 +66,7 @@ export default class GameBoard extends React.Component {
          });
          break;*/
         case '^':
-          this.setState({message: "Silly bunny! You can't go through rocks!"});
+          this.props.setMessage("Silly bunny! You can't go through rocks!");
           break;
         case '$':
           // Fox -- die :(
@@ -77,10 +78,10 @@ export default class GameBoard extends React.Component {
             return {
               map: newMap,
               moves: prevState.moves++,
-              gameState: 0,
-              message: 'Game over -- bunny got eaten by a fox. :('
+              gameState: 0
             };
           });
+          this.props.setMessage("Game over -- bunny got eaten by a fox. :(");
           break;
         case '@':
           // Burrow -- win! :)
@@ -93,10 +94,10 @@ export default class GameBoard extends React.Component {
               map: newMap,
               wins: prevState.wins++,
               moves: prevState.moves++,
-              gameState: 0,
-              message: 'You won -- bunny made it home! :D'
+              gameState: 0
             };
           });
+          this.props.setMessage("You won -- bunny made it home! :)");
           break;
         default:
           console.info('at default');
@@ -106,14 +107,14 @@ export default class GameBoard extends React.Component {
             newMap[oldY][oldX] = null;
             newMap[newY][newX] = '#';
 
-            return {map: newMap, moves: prevState.moves++, bunnyCoords: [newX, newY], message: ''}
+            return {map: newMap, moves: prevState.moves++, bunnyCoords: [newX, newY]}
           });
+          this.props.setMessage(null);
       }
     } else {
       console.log('dont move');
     }
   }
-
 
   createNewMap() {
     let initialMap = [];
@@ -172,10 +173,6 @@ export default class GameBoard extends React.Component {
     return [randX, randY]
   }
 
-  getRandomMapSquare() {
-    return [randomInt(0, this.props.mapWidth - 1), randomInt(0, this.props.mapWidth - 1)];
-  }
-
   handleKeyDown(e) {
     console.log(`pressed: ${e.key}`);
 
@@ -200,16 +197,19 @@ export default class GameBoard extends React.Component {
     }
   }
 
+  getRandomMapSquare() {
+    return [randomInt(0, this.props.mapWidth - 1), randomInt(0, this.props.mapWidth - 1)];
+  }
+
   render() {
     return <div className={'game-board'}>
-
       <header>
         <div className={'info-container'}>
           <p>Moves: {this.state.moves}</p>
           <p>Wins this session: {this.state.wins}</p>
         </div>
-        <button type={'button'} className={!this.state.gameState && 'emphasis'} onClick={this.startNewGame}>Start New
-          Game
+        <button type={'button'} className={!this.state.gameState && 'emphasis'} onClick={this.startNewGame}>
+          Start New Game
         </button>
       </header>
 
@@ -218,8 +218,10 @@ export default class GameBoard extends React.Component {
         {
           this.state.map.map((col, i) => {
             return <tr key={`col_${i}`}>{col.map((item, j) => {
-              return <td key={`item_${j}:${i}`}><span
-                className={'dev_note'}>{`${j}, ${i}`}</span>{item && `${item}`}</td>
+              return <td key={`item_${j}:${i}`}>
+                <small>{`${j}, ${i}`}</small>
+                <span className={'grid-item'}>{item && `${item}`}</span>
+              </td>
             })}</tr>
           })
         }

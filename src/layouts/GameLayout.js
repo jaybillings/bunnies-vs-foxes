@@ -6,9 +6,13 @@ export default class GameLayout extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {message: 'Get the bunny to her burrow!'}
+    this.state = {message: null};
+    this.setMessage = this.setMessage.bind(this);
   }
 
+  setMessage(message) {
+    this.setState({message});
+  }
 
   render() {
     const config = {
@@ -25,7 +29,7 @@ export default class GameLayout extends Component {
     return <div className={'game-layout'}>
       <header>
         <h1>the bunny game</h1>
-        <h2 className={'message'}><p>{this.state.message}</p></h2>
+        <h2 className={'message'}><p>{this.state.message || 'Get the bunny to her burrow!'}</p></h2>
       </header>
       <div>
         <p><strong>Legend:</strong></p>
@@ -34,11 +38,11 @@ export default class GameLayout extends Component {
           <li>$<BsArrowRight />the fox, will eat the bunny</li>
           <li>@<BsArrowRight />the burrow, go here!</li>
           <li>^<BsArrowRight />hills, uncrossable</li>
-          <li>*<BsArrowRight />dandelions, make your next move 2 spaces</li>
+          <li>*<BsArrowRight />dandelions, make you hop farther</li>
         </ul>
       </div>
       <GameBoard rockRatio={config.ratios.rock} flowerRatio={config.ratios.flower}
-                 mapWidth={config.mapSize.width} mapHeight={config.mapSize.height} />
+                 mapWidth={config.mapSize.width} mapHeight={config.mapSize.height} setMessage={this.setMessage} />
     </div>
   }
 }

@@ -6,6 +6,12 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Version History
 
+0.0.5
+* UI layout now mobile-first
+* Separates map keys from game agent appearance.
+  * Keys are now text (e.g. "burrow")
+  * GameBoard has mapping of key -> appearance (e.g. {burrow: "@"})
+
 0.0.4
 * Improves UI layout
 

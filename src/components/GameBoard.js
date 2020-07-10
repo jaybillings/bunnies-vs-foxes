@@ -182,15 +182,19 @@ export default class GameBoard extends React.Component {
     e.preventDefault();
 
     switch (e.key) {
+      case 'a':
       case 'ArrowLeft':
         if (this.state.gameState) this.moveBunny([-1, 0]);
         break;
+      case 'd':
       case 'ArrowRight':
         if (this.state.gameState) this.moveBunny([1, 0]);
         break;
+      case 'w':
       case 'ArrowUp':
         if (this.state.gameState) this.moveBunny([0, -1]);
         break;
+      case 's':
       case 'ArrowDown':
         if (this.state.gameState) this.moveBunny([0, 1]);
         break;

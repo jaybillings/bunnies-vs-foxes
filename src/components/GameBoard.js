@@ -13,6 +13,16 @@ export default class GameBoard extends React.Component {
       map: [], bunnyCoords: [], gameState: 1, moves: 0, wins: 0, message: null
     };
 
+    this.icons = {
+      bunny: '#',
+      fox: '$',
+      rock: '^',
+      flower: '*',
+      burrow: '@',
+      win: '(@)',
+      loss: ':('
+    };
+
     this.handleKeyDown = this.handleKeyDown.bind(this);
     //this.startNewGame = this.startNewGame.bind(this);
   }
@@ -29,12 +39,12 @@ export default class GameBoard extends React.Component {
 
   initMap() {
     let map = this.createNewMap();
-    this.placeBarriers(map);
-    //this.placeBoosts(map);
+    this.placeRocks(map);
+    //this.placeFlowers(map);
 
-    this.placeAgent(map, '$');
-    this.placeAgent(map, '@'); // TODO: Burrow should be reachable
-    let bunnyCoords = this.placeAgent(map, '#');
+    this.placeAgent(map, 'fox');
+    this.placeAgent(map, 'burrow'); // TODO: Burrow should be reachable
+    let bunnyCoords = this.placeAgent(map, 'bunny');
 
     this.setState({map, bunnyCoords});
   }
@@ -43,9 +53,6 @@ export default class GameBoard extends React.Component {
     const [oldX, oldY] = this.state.bunnyCoords;
     const [offsetX, offsetY] = offset;
     let newX = oldX + offsetX, newY = oldY + offsetY;
-
-    console.info(`newx: ${newX}, newy: ${newY}, oldX: ${oldX}, oldY: ${oldY}`);
-    console.info('offset', offset);
 
     if (this.state.map[newY] && typeof this.state.map[newY][newX] !== 'undefined') {
       switch (this.state.map[newY][newX]) {
@@ -64,15 +71,15 @@ export default class GameBoard extends React.Component {
          }
          });
          break;*/
-        case '^':
+        case 'rock':
           this.setState({message: "Silly bunny! You can't go through rocks!"});
           break;
-        case '$':
+        case 'fox':
           // Fox -- die :(
           this.setState(prevState => {
             let newMap = prevState.map;
             newMap[oldY][oldX] = null;
-            newMap[newY][newX] = ':(';
+            newMap[newY][newX] = 'loss';
 
             return {
               map: newMap,
@@ -82,12 +89,12 @@ export default class GameBoard extends React.Component {
             };
           });
           break;
-        case '@':
+        case 'burrow':
           // Burrow -- win! :)
           this.setState(prevState => {
             let newMap = prevState.map;
             newMap[oldY][oldX] = null;
-            newMap[newY][newX] = '(#)';
+            newMap[newY][newX] = 'win';
 
             return {
               map: newMap,
@@ -99,19 +106,17 @@ export default class GameBoard extends React.Component {
           });
           break;
         default:
-          console.info('at default');
           // Just move
           this.setState(prevState => {
             let newMap = prevState.map;
             newMap[oldY][oldX] = null;
-            newMap[newY][newX] = '#';
+            newMap[newY][newX] = 'bunny';
 
             return {map: newMap, moves: prevState.moves++, bunnyCoords: [newX, newY], message: null}
           });
       }
     } else {
       this.setState({message: "Don't fall off the edge of the world!"});
-      console.log('dont move');
     }
   }
 
@@ -129,23 +134,21 @@ export default class GameBoard extends React.Component {
     return initialMap;
   }
 
-  placeBarriers(map) {
-    // TODO: Barriers should not block bunny
+  placeRocks(map) {
     let numRocks = Math.floor((this.props.mapWidth * this.props.mapHeight) * this.props.rockRatio);
     if (numRocks < 2) numRocks = 2;
-    console.info('numRocks ', numRocks);
 
     while (numRocks > 0) {
       const [randX, randY] = this.getRandomMapSquare();
 
       if (map[randY][randX] === null) {
-        map[randY][randX] = '^';
+        map[randY][randX] = 'rock';
         numRocks--;
       }
     }
   }
 
-  placeBoosts(map) {
+  placeFlowers(map) {
     let numFlowers = Math.floor((this.props.mapWidth * this.props.mapHeight) * this.props.flowerRatio);
     if (numFlowers < 1) numFlowers = 1;
     console.info(numFlowers);
@@ -166,9 +169,7 @@ export default class GameBoard extends React.Component {
     do {
       [randX, randY] = this.getRandomMapSquare();
     } while (map[randY][randX]);
-
     map[randY][randX] = agentChar;
-    console.info(`initial location of ${agentChar}: [${randX},${randY}]`);
 
     return [randX, randY]
   }
@@ -219,7 +220,7 @@ export default class GameBoard extends React.Component {
             return <tr key={`col_${i}`}>{col.map((item, j) => {
               return <td key={`item_${j}:${i}`}>
                 <small>{`${j}, ${i}`}</small>
-                <span className={'grid-item'}>{item && `${item}`}</span>
+                <span className={'grid-item'}>{item && `${this.icons[item]}`}</span>
               </td>
             })}</tr>
           })

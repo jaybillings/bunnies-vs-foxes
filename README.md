@@ -2,9 +2,20 @@
 
 A game of predator and prey.
 
+Get the bunny to her burrow while avoiding the fox!
+* Press ENTER at any time to start a new game.
+* Move the bunny with the arrow keys or WASD.
+* Reach the burrow to win.
+* If the bunny encounters the fox, you lose.
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Version History
+
+0.0.6
+* Adds support for WASD keys.
+* Adds instructions to README.
+* Minor style updates.
 
 0.0.5
 * UI layout now mobile-first

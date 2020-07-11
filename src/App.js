@@ -1,5 +1,5 @@
 import React from 'react';
-import GameLayout from "./layouts/GameLayout";
+import GameLayout from "./layouts/GameLayout.jsx";
 
 import './App.scss';
 

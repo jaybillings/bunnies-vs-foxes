@@ -1,5 +1,6 @@
 import * as React from "react";
 import { randomInt } from "../scripts/utilities";
+import GameGrid from "./GameGrid";
 
 export default class GameBoard extends React.Component {
   /**
@@ -10,21 +11,14 @@ export default class GameBoard extends React.Component {
 
     // gameState: 1 - in progress, 0 - current game ended
     this.state = {
-      map: [], bunnyCoords: [], gameState: 1, moves: 0, wins: 0, message: null
-    };
-
-    this.icons = {
-      bunny: '#',
-      fox: '$',
-      rock: '^',
-      flower: '*',
-      burrow: '@',
-      win: '(@)',
-      loss: ':('
+      map: [],
+      bunnyCoords: [], foxCoords: [],
+      userCanMove: false, gameState: 1,
+      moves: 0, wins: 0,
+      message: null
     };
 
     this.handleKeyDown = this.handleKeyDown.bind(this);
-    //this.startNewGame = this.startNewGame.bind(this);
   }
 
   componentDidMount() {
@@ -33,20 +27,20 @@ export default class GameBoard extends React.Component {
   }
 
   startNewGame() {
-    this.setState({gameState: 1, moves: 0, message: null});
+    this.setState({userCanMove: false, gameState: 1, moves: 0, message: null});
     this.initMap();
   }
 
   initMap() {
     let map = this.createNewMap();
-    this.placeRocks(map);
-    //this.placeFlowers(map);
+    this.placeBarriers(map);
+    this.placeBoosts(map);
 
-    this.placeAgent(map, 'fox');
     this.placeAgent(map, 'burrow'); // TODO: Burrow should be reachable
+    let foxCoords = this.placeAgent(map, 'fox');
     let bunnyCoords = this.placeAgent(map, 'bunny');
 
-    this.setState({map, bunnyCoords});
+    this.setState({map, bunnyCoords, foxCoords, userCanMove: true});
   }
 
   moveBunny(offset) {
@@ -56,21 +50,23 @@ export default class GameBoard extends React.Component {
 
     if (this.state.map[newY] && typeof this.state.map[newY][newX] !== 'undefined') {
       switch (this.state.map[newY][newX]) {
-        /*case '*':
-         // Flower -- boost!
-         this.setState(prevState => {
-         let newMap = prevState.map;
-         newMap[oldY][oldX] = null;
-         newMap[newY][newX] = '#';
+        case 'flower':
+          // Flower -- boost!
+          this.setState(prevState => {
+            let newMap = prevState.map;
+            newMap[oldY][oldX] = null;
+            newMap[newY][newX] = 'bunny';
 
-         return {
-         map: newMap,
-         bunnySpeed: 2,
-         message: 'Bunny ate a flower -- next move will be two spaces.',
-         bunnyCoords: [newX, newY]
-         }
-         });
-         break;*/
+            return {
+              userCanMove: false,
+              map: newMap,
+              message: 'Bunny ate a flower -- yum!',
+              bunnyCoords: [newX, newY]
+            }
+          }, () => {
+            this.moveFox();
+          });
+          break;
         case 'rock':
           this.setState({message: "Silly bunny! You can't go through rocks!"});
           break;
@@ -85,8 +81,8 @@ export default class GameBoard extends React.Component {
               map: newMap,
               moves: prevState.moves++,
               gameState: 0,
-              message: "Game over -- bunny got eaten by a fox. :("
-            };
+              message: "Game over -- bunny got eaten by fox. :("
+            }
           });
           break;
         case 'burrow':
@@ -112,11 +108,70 @@ export default class GameBoard extends React.Component {
             newMap[oldY][oldX] = null;
             newMap[newY][newX] = 'bunny';
 
-            return {map: newMap, moves: prevState.moves++, bunnyCoords: [newX, newY], message: null}
+            return {
+              userCanMove: false,
+              map: newMap,
+              moves: prevState.moves++,
+              bunnyCoords: [newX, newY],
+              message: null
+            };
+          }, () => {
+            this.moveFox();
           });
       }
     } else {
       this.setState({message: "Don't fall off the edge of the world!"});
+    }
+  }
+
+  moveFox() {
+    let [oldX, oldY] = this.state.foxCoords;
+    let possibleMoves = [[oldX - 1, oldY], [oldX + 1, oldY], [oldX, oldY - 1], [oldX, oldY + 1]];
+    let foxCanMove = false;
+    let newX, newY;
+
+    // Randomly choose a move to make
+    while (!foxCanMove && possibleMoves.length > 0) {
+      let randMove = randomInt(0, possibleMoves.length - 1);
+      [newX, newY] = possibleMoves[randMove];
+
+      if (this.state.map[newY] && typeof this.state.map[newY][newX] !== 'undefined' && this.state.map[newY][newX] !== 'rock') {
+        foxCanMove = true;
+      }
+    }
+
+    // Handle fox move
+    if (foxCanMove) {
+      let newCellContents = this.state.map[newY][newX];
+      if (newCellContents === 'bunny') {
+        this.setState(prevState => {
+          let newMap = prevState.map;
+          newMap[oldY][oldX] = null;
+          newMap[newY][newX] = 'loss';
+
+          return {
+            map: newMap,
+            moves: prevState.moves++,
+            gameState: 0,
+            message: "Game over -- bunny got eaten by fox! :(",
+            userCanMove: true
+          }
+        });
+      } else {
+        this.setState(prevState => {
+          let newMap = prevState.map;
+          newMap[oldY][oldX] = null;
+          newMap[newY][newX] = 'fox';
+
+          return {
+            map: newMap,
+            foxCoords: [newX, newY],
+            userCanMove: true
+          }
+        });
+      }
+    } else {
+      this.setState({message: 'Fox is trapped! Go you!'});
     }
   }
 
@@ -134,7 +189,7 @@ export default class GameBoard extends React.Component {
     return initialMap;
   }
 
-  placeRocks(map) {
+  placeBarriers(map) {
     let numRocks = Math.floor((this.props.mapWidth * this.props.mapHeight) * this.props.rockRatio);
     if (numRocks < 2) numRocks = 2;
 
@@ -148,28 +203,27 @@ export default class GameBoard extends React.Component {
     }
   }
 
-  placeFlowers(map) {
+  placeBoosts(map) {
     let numFlowers = Math.floor((this.props.mapWidth * this.props.mapHeight) * this.props.flowerRatio);
     if (numFlowers < 1) numFlowers = 1;
-    console.info(numFlowers);
 
     while (numFlowers > 0) {
       const [randX, randY] = this.getRandomMapSquare();
 
       if (map[randY][randX] === null) {
-        map[randY][randX] = '*';
+        map[randY][randX] = 'flower';
         numFlowers--;
       }
     }
   }
 
-  placeAgent(map, agentChar) {
+  placeAgent(map, agentID) {
     let randX, randY;
 
     do {
       [randX, randY] = this.getRandomMapSquare();
     } while (map[randY][randX]);
-    map[randY][randX] = agentChar;
+    map[randY][randX] = agentID;
 
     return [randX, randY]
   }
@@ -180,6 +234,11 @@ export default class GameBoard extends React.Component {
 
   handleKeyDown(e) {
     e.preventDefault();
+
+    if (!this.state.userCanMove) {
+      console.info('User cannot move -- prop is negative');
+      return;
+    }
 
     switch (e.key) {
       case 'a':
@@ -216,21 +275,7 @@ export default class GameBoard extends React.Component {
           <p>Wins this session: {this.state.wins}</p>
         </div>
       </header>
-
-      <table className={'game-grid'}>
-        <tbody>
-        {
-          this.state.map.map((col, i) => {
-            return <tr key={`col_${i}`}>{col.map((item, j) => {
-              return <td key={`item_${j}:${i}`}>
-                <small>{`${j}, ${i}`}</small>
-                <span className={'grid-item'}>{item && `${this.icons[item]}`}</span>
-              </td>
-            })}</tr>
-          })
-        }
-        </tbody>
-      </table>
+      <GameGrid map={this.state.map} />
     </div>
   }
 }

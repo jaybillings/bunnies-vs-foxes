@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import GameBoard from "../components/GameBoard";
+import GameBoard from "../components/GameBoard.jsx";
 import { BsArrowRight } from "react-icons/bs";
 
 export default class GameLayout extends Component {
@@ -58,7 +58,7 @@ export default class GameLayout extends Component {
           <li><strong>$</strong><BsArrowRight />the fox, will eat the bunny</li>
           <li><strong>@</strong><BsArrowRight />the burrow, go here!</li>
           <li>^<BsArrowRight />hills, uncrossable</li>
-          <li>*<BsArrowRight />dandelions, make you hop farther</li>
+          <li>*<BsArrowRight />dandelions, make you hop farther [currently not implemented]</li>
         </ul>
       </div>
     </div>

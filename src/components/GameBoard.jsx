@@ -125,6 +125,7 @@ export default class GameBoard extends React.Component {
   }
 
   moveFox() {
+    // TODO: Retain previous cell contents
     let [oldX, oldY] = this.state.foxCoords;
     let possibleMoves = [[oldX - 1, oldY], [oldX + 1, oldY], [oldX, oldY - 1], [oldX, oldY + 1]];
     let foxCanMove = false;

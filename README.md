@@ -12,6 +12,10 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Version History
 
+0.0.7
+* Implements fox movement after user moves bunny
+  * Cells passed over by foxes are **not** retained.
+  
 0.0.6
 * Adds support for WASD keys.
 * Adds instructions to README.

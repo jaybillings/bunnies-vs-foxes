@@ -4,7 +4,7 @@ export default function GameGrid(props) {
  return <table className={'game-grid'}>
    <tbody>
    {
-     props.map.map((col, i) => {
+     props.boardMap.map((col, i) => {
        return <tr key={`col_${i}`}>{col.map((item, j) => {
          let cellItem = null;
          if (item) {

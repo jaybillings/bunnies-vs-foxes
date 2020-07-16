@@ -12,6 +12,11 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## Version History
 
+0.0.8
+* Cleans up user and fox movement
+* Fox avoids barriers and burrow
+* Enables retention of previous cell contents (currently only valid if fox is on flower cell)
+
 0.0.7
 * Implements fox movement after user moves bunny
   * Cells passed over by foxes are **not** retained.

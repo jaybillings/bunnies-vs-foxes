@@ -276,7 +276,7 @@ export default class GameBoard extends React.Component {
           <p>Wins this session: {this.state.wins}</p>
         </div>
       </header>
-      <GameGrid map={this.state.map} />
+      <GameGrid map={this.state.map} icons={this.props.icons} />
     </div>
   }
 }

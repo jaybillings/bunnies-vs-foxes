@@ -12,7 +12,7 @@ export default class GameBoard extends React.Component {
 
     // gameState: 1 - in progress, 0 - current game ended
     this.state = {
-      boardMap: [], bunnyCoords: [], foxCoords: [], userCanMove: false, gameState: 1, moves: 0, wins: 0, message: null
+      boardMap: [], bunnyCoords: [], foxCoords: [], gameState: 1, wins: 0, movesTaken: 0, movePool: 0, message: null,
     };
 
     this.handleKeyDown = this.handleKeyDown.bind(this);
@@ -24,7 +24,7 @@ export default class GameBoard extends React.Component {
   }
 
   startNewGame() {
-    this.setState({userCanMove: false, gameState: 1, moves: 0, message: null});
+    this.setState({gameState: 1, movesTaken: 0, movePool: 0, message: null});
     this.initMap();
   }
 
@@ -33,11 +33,11 @@ export default class GameBoard extends React.Component {
     this.placeBarriers(map);
     this.placeBoosts(map);
 
-    this.placeAgent(map, 'burrow'); // TODO: Burrow should be reachable
+    this.placeAgent(map, 'burrow'); // TODO: Ensure burrow is reachable
     let foxCoords = this.placeAgent(map, 'fox');
     let bunnyCoords = this.placeAgent(map, 'bunny');
 
-    this.setState({boardMap: map, bunnyCoords, foxCoords, userCanMove: true});
+    this.setState({boardMap: map, bunnyCoords, foxCoords, movePool: 1});
   }
 
   moveBunny(offset) {
@@ -51,9 +51,9 @@ export default class GameBoard extends React.Component {
     }
 
     // DEEP COPY FOR GREAT JUSTICE
-    // (and to direct alteration of state b/c of copying inner array by ref)
+    // (and to avoid direct alteration of state b/c of copying inner array by ref)
     const newMap = DeepCopy(this.state.boardMap);
-    let doFoxTurn = false, newState;
+    let newState;
 
     switch (newMap[newY][newX]) {
       case 'rock':
@@ -66,10 +66,11 @@ export default class GameBoard extends React.Component {
         newMap[newY][newX] = 'bunny';
         newState = {
           boardMap: newMap,
-          message: "Bunny ate flower -- yum!",
-          bunnyCoords: [newX, newY]
+          bunnyCoords: [newX, newY],
+          movesTaken: this.state.movesTaken + 1,
+          movePool: this.state.movePool + 1,
+          message: "Bunny ate flower -- energizing! (Get two extra moves.)",
         };
-        doFoxTurn = true;
         break;
       case 'fox':
         // Fox -- loss :(
@@ -77,8 +78,10 @@ export default class GameBoard extends React.Component {
         newMap[newY][newX] = 'loss';
         newState = {
           boardMap: newMap,
-          moves: this.state.moves + 1,
           gameState: 0,
+          bunnyCoords: [newX, newY],
+          movesTaken: this.state.movesTaken + 1,
+          movePool: this.state.movePool - 1,
           message: "Game over -- bunny got eaten by fox! :("
         };
         break;
@@ -88,9 +91,11 @@ export default class GameBoard extends React.Component {
         newMap[newY][newX] = 'win';
         newState = {
           boardMap: newMap,
-          wins: this.state.wins + 1,
-          moves: this.state.moves + 1,
           gameState: 0,
+          bunnyCoords: [newX, newY],
+          wins: this.state.wins + 1,
+          movesTaken: this.state.movesTaken + 1,
+          movePool: this.state.movePool - 1,
           message: "You won -- bunny made it home! :)"
         };
         break;
@@ -100,15 +105,16 @@ export default class GameBoard extends React.Component {
         newMap[newY][newX] = 'bunny';
         newState = {
           boardMap: newMap,
-          moves: this.state.moves + 1,
           bunnyCoords: [newX, newY],
+          movesTaken: this.state.movesTaken + 1,
+          movePool: this.state.movePool - 1,
           message: null
         };
-        doFoxTurn = true;
     }
 
-    this.setState(Object.assign({userCanMove: !doFoxTurn}, newState), () => {
-      doFoxTurn && this.doFoxTurn();
+    this.setState(newState, () => {
+      console.log(this.state);
+      !this.state.movePool && this.state.gameState && setTimeout(() => this.doFoxTurn(), 300)
     });
   }
 
@@ -136,7 +142,7 @@ export default class GameBoard extends React.Component {
     };
     let allowedMoves = possibleMoves.filter(isValidFoxMove);
 
-    // No moves
+    // No moves left
     if (!allowedMoves.length) {
       console.log('fox trapped!');
       this.moveFox(false);
@@ -173,7 +179,7 @@ export default class GameBoard extends React.Component {
         newState = {
           boardMap: newMap,
           foxCoords: [newX, newY],
-          userCanMove: true
+          movePool: 1
         };
         break;
       default:
@@ -181,77 +187,11 @@ export default class GameBoard extends React.Component {
         newState = {
           boardMap: newMap,
           foxCoords: [newX, newY],
-          userCanMove: true
+          movePool: 1
         };
     }
 
     this.setState(newState);
-  }
-
-  moveFoxOld() {
-    // TODO: Retain previous cell contents
-    let [oldX, oldY] = this.state.foxCoords;
-    let possibleMoves = [[oldX - 1, oldY], [oldX + 1, oldY], [oldX, oldY - 1], [oldX, oldY + 1]];
-    let foxCanMove = false;
-    let newX, newY;
-
-    // Randomly choose a move to make
-    while (!foxCanMove && possibleMoves.length > 0) {
-      let randMove = randomInt(0, possibleMoves.length - 1);
-      [newX, newY] = possibleMoves[randMove];
-
-      if (this.state.boardMap[newY] && typeof this.state.boardMap[newY][newX] !== 'undefined' && this.state.boardMap[newY][newX] !== 'rock') {
-        foxCanMove = true;
-      }
-    }
-
-    // Handle fox move
-    if (foxCanMove) {
-      let newCellContents = this.state.boardMap[newY][newX];
-      if (newCellContents === 'bunny') {
-        this.setState(prevState => {
-          let newMap = prevState.boardMap;
-          newMap[oldY][oldX] = null;
-          newMap[newY][newX] = 'loss';
-
-          return {
-            boardMap: newMap,
-            moves: prevState.moves++,
-            gameState: 0,
-            message: "Game over -- bunny got eaten by fox! :(",
-            userCanMove: true
-          }
-        });
-      } else {
-        this.setState(prevState => {
-          let newMap = prevState.boardMap;
-          newMap[oldY][oldX] = null;
-          newMap[newY][newX] = 'fox';
-
-          return {
-            boardMap: newMap,
-            foxCoords: [newX, newY],
-            userCanMove: true
-          }
-        });
-      }
-    } else {
-      this.setState({message: 'Fox is trapped! Go you!'});
-    }
-  }
-
-  createBlankMap() {
-    let initialMap = [];
-
-    for (let y = 0; y < this.props.mapHeight; y++) {
-      let innerMap = [];
-      for (let x = 0; x < this.props.mapWidth; x++) {
-        innerMap[x] = null;
-      }
-      initialMap[y] = innerMap;
-    }
-
-    return initialMap;
   }
 
   placeBarriers(map) {
@@ -300,27 +240,27 @@ export default class GameBoard extends React.Component {
   handleKeyDown(e) {
     e.preventDefault();
 
-    if (!this.state.userCanMove || !this.state.gameState) {
-      console.info('User cannot move -- prop is negative');
+    if (!this.state.gameState || !this.state.movePool) {
+      console.info('User cannot move -- game is over or no moves available');
       return;
     }
 
     switch (e.key) {
       case 'a':
       case 'ArrowLeft':
-        if (this.state.gameState) this.moveBunny([-1, 0]);
+        this.moveBunny([-1, 0]);
         break;
       case 'd':
       case 'ArrowRight':
-        if (this.state.gameState) this.moveBunny([1, 0]);
+        this.moveBunny([1, 0]);
         break;
       case 'w':
       case 'ArrowUp':
-        if (this.state.gameState) this.moveBunny([0, -1]);
+        this.moveBunny([0, -1]);
         break;
       case 's':
       case 'ArrowDown':
-        if (this.state.gameState) this.moveBunny([0, 1]);
+        this.moveBunny([0, 1]);
         break;
       default:
       // nothing
@@ -336,7 +276,8 @@ export default class GameBoard extends React.Component {
       <header>
         <h2 className={'message'}><p>{this.state.message || 'Get the bunny to her burrow!'}</p></h2>
         <div className={'info-container'}>
-          <p>Moves: {this.state.moves}</p>
+          <p>Moves left for turn: {this.state.movePool}</p>
+          <p>Total moves taken: {this.state.movesTaken}</p>
           <p>Wins this session: {this.state.wins}</p>
         </div>
       </header>

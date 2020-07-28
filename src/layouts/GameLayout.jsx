@@ -66,7 +66,7 @@ export default class GameLayout extends Component {
         <p><strong>Legend:</strong></p>
         <ul>
           <li><strong>{this.config.icons.bunny}</strong><BsArrowRight />the bunny, that's you!</li>
-          <li><strong>{this.config.icons.fox}</strong><BsArrowRight />the fox, will eat the bunny</li>
+          <li><strong>{this.config.icons.fox}</strong><BsArrowRight />the fox, will eat the bunny (can see 2 squares away)</li>
           <li><strong>{this.config.icons.burrow}</strong><BsArrowRight />the burrow, go here!</li>
           <li>{this.config.icons.rock}<BsArrowRight />hills, uncrossable</li>
           <li>{this.config.icons.flower}<BsArrowRight />dandelions, make you hop farther [currently not implemented]</li>

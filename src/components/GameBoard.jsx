@@ -194,6 +194,20 @@ export default class GameBoard extends React.Component {
     this.setState(newState);
   }
 
+  createBlankMap() {
+    let initialMap = [];
+
+    for (let y = 0; y < this.props.mapHeight; y++) {
+      let innerMap = [];
+      for (let x = 0; x < this.props.mapWidth; x++) {
+        innerMap[x] = null;
+      }
+      initialMap[y] = innerMap;
+    }
+
+    return initialMap;
+  }
+
   placeBarriers(map) {
     let numRocks = Math.floor((this.props.mapWidth * this.props.mapHeight) * this.props.rockRatio);
     if (numRocks < 2) numRocks = 2;
